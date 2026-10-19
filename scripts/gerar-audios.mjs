@@ -110,16 +110,19 @@ async function gerar(audio) {
   console.log(`✓ ${audio.id}.mp3 (${audio.nivel}, ${audio.voz}, velocidade ${audio.velocidade})`);
 }
 
+// process.exitCode em vez de process.exit(): no Windows, sair à força logo
+// depois de um fetch dispara um "Assertion failed" do libuv.
 try {
   if (audios.some((a) => !a.voiceId)) {
     console.log('Alguns áudios estão sem "voiceId" em banco.json.');
     await sugerirVozes();
-    process.exit(1);
+    process.exitCode = 1;
+  } else {
+    mkdirSync(pastaSaida, { recursive: true });
+    for (const audio of audios) await gerar(audio);
+    console.log(`\nPronto. Ouça os arquivos em public/audio/nivelamento/ e faça o commit.`);
   }
-  mkdirSync(pastaSaida, { recursive: true });
-  for (const audio of audios) await gerar(audio);
-  console.log(`\nPronto. Ouça os arquivos em public/audio/nivelamento/ e faça o commit.`);
 } catch (erro) {
   console.error(`\n${erro.message}`);
-  process.exit(1);
+  process.exitCode = 1;
 }

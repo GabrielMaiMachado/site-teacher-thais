@@ -86,7 +86,7 @@
         "nivel": "A2",
         "arquivo": "/audio/nivelamento/escuta-1.mp3",
         "voz": "Mulher, sotaque americano",
-        "voiceId": "",
+        "voiceId": "EXAVITQu4vr4xnSDxMaL",
         "velocidade": 0.85,
         "texto": "Hi, I'm Paula. I live in Curitiba with my sister and our dog, Max. I work at a bakery, so I start very early, at five in the morning. On Sundays, I like to go to the park.",
         "perguntas": [
@@ -99,7 +99,7 @@
         "nivel": "B1",
         "arquivo": "/audio/nivelamento/escuta-2.mp3",
         "voz": "Homem, sotaque britânico",
-        "voiceId": "",
+        "voiceId": "onwK4e9ZLuTAKqWW03F9",
         "velocidade": 0.92,
         "texto": "Good afternoon, passengers. Due to heavy rain, flight four eight two to Lisbon is delayed by about forty-five minutes. Boarding will now take place at gate twelve, instead of gate eight. We apologise for the inconvenience.",
         "perguntas": [
@@ -112,7 +112,7 @@
         "nivel": "B2",
         "arquivo": "/audio/nivelamento/escuta-3.mp3",
         "voz": "Homem, sotaque americano",
-        "voiceId": "",
+        "voiceId": "CwhRBWXzGAHq8TQ4Fs17",
         "velocidade": 1,
         "texto": "I used to think that working from home would make me more productive, but honestly, it was the opposite. Without the commute, I ended up working longer hours, and I really missed the small conversations with colleagues. Now I go to the office three days a week, and that balance works much better for me.",
         "perguntas": [
@@ -125,7 +125,7 @@
         "nivel": "C1",
         "arquivo": "/audio/nivelamento/escuta-4.mp3",
         "voz": "Mulher, sotaque britânico",
-        "voiceId": "",
+        "voiceId": "Xb7hH8MSUJpSbSDYk0k2",
         "velocidade": 1.05,
         "texto": "What strikes me about the debate on screen time is how rarely we distinguish between different types of use. An hour spent video-calling a grandparent is hardly comparable to an hour of mindless scrolling, yet most guidelines lump them together. Until research accounts for that nuance, I'd take any blanket recommendation with a pinch of salt.",
         "perguntas": [

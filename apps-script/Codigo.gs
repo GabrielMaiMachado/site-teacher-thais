@@ -104,8 +104,12 @@ function onOpen() {
 // ---------------------------------------------------------------------------
 
 function configurarPlanilha() {
+  // Localidade dos EUA: as fórmulas usam vírgula como separador, e com a
+  // localidade Brasil (que espera ponto e vírgula) elas dão erro de análise.
+  // O fuso continua o de São Paulo, para a coluna Data/hora sair certa.
+  SpreadsheetApp.getActive().setSpreadsheetLocale('en_US');
+  SpreadsheetApp.getActive().setSpreadsheetTimeZone('America/Sao_Paulo');
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  ss.setSpreadsheetTimeZone('America/Sao_Paulo');
 
   const respostas = obterAba_(ss, ABA.respostas, 0);
   const turmas = obterAba_(ss, ABA.turmas, 1);
