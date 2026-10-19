@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   ArrowUpRight,
   Check,
@@ -16,11 +17,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { whatsappUrl } from "@/lib/contato";
 
-const WHATSAPP_NUMBER = "555591359494";
-const WHATSAPP_MESSAGE =
-  "Oi, Teacher Thaís! Vi sua página e gostaria de agendar minha aula de inglês. :)";
-const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+const WHATSAPP_URL = whatsappUrl(
+  "Oi, Teacher Thaís! Vi sua página e gostaria de agendar minha aula de inglês. :)",
+);
+const NIVELAMENTO_URL = "/nivelamento?plano=turma";
 const TIKTOK_URL = "https://www.tiktok.com/@learnwithteacherthais";
 
 const advantages = [
@@ -73,34 +75,51 @@ const plans: {
   period: string;
   tag?: string;
   featured?: boolean;
+  isNew?: boolean;
+  cta?: { label: string; href: string };
+  note?: string;
 }[] = [
   {
-    title: "1x por semana",
+    title: "Individual · 1x por semana",
     meta: "4 aulas ao vivo no mês",
     benefits: baseBenefits,
-    price: "R$ 170",
+    price: "R$ 200",
     period: "/mês",
     tag: "10% off no 1º mês se indicar um amigo*",
   },
   {
-    title: "2x por semana ou 2h no mesmo dia",
-    meta: "8 aulas no mês",
+    title: "Individual · 2x por semana",
+    meta: "8 aulas no mês, ou 2h no mesmo dia",
     benefits: [
       ...baseBenefits,
       <strong key="extra">1 aula extra de conversação por mês</strong>,
       <strong key="gravadas">Aulas gravadas</strong>,
     ],
-    price: "R$ 350",
+    price: "R$ 380",
     period: "/mês",
     tag: "mais evolução",
     featured: true,
   },
   {
-    title: "Em dupla ou trio",
-    meta: "Valor equivalente a 1x na semana",
+    title: "Dupla",
+    meta: "Estude junto com quem você quiser",
     benefits: baseBenefits,
-    price: "R$ 150",
+    price: "R$ 170",
     period: "/mês por pessoa",
+  },
+  {
+    title: "Turma de até 4 pessoas",
+    meta: "Todo mundo no mesmo nível",
+    benefits: [
+      "Turma montada por nível, a partir de um teste de nivelamento",
+      "Turma mista ou só com pessoas do mesmo gênero, você escolhe",
+      ...baseBenefits,
+    ],
+    price: "R$ 140",
+    period: "/mês por pessoa",
+    isNew: true,
+    cta: { label: "Fazer teste de nivelamento", href: NIVELAMENTO_URL },
+    note: "A turma abre quando fecharmos 3 ou 4 pessoas do mesmo nível com horário em comum.",
   },
 ];
 
@@ -147,7 +166,18 @@ const faqs = [
   },
   {
     question: "Posso fazer aula com outra pessoa?",
-    answer: "Sim. Existe a opção em dupla ou trio, com valor por pessoa.",
+    answer:
+      "Sim. Existe a opção em dupla ou em turma de até 4 pessoas, com valor por pessoa.",
+  },
+  {
+    question: "Como funcionam as turmas?",
+    answer:
+      "São até 4 pessoas do mesmo nível, com aulas online pelo Meet. A turma é montada a partir do teste de nivelamento e pode ser mista ou só com pessoas do mesmo gênero, sem diferença de preço.",
+  },
+  {
+    question: "Preciso fazer o teste para a aula individual?",
+    answer:
+      "Não. No individual, o seu nível é avaliado na primeira aula.",
   },
   {
     question: "Como funciona o plano de estudos?",
@@ -305,6 +335,15 @@ export default function Home() {
                   Conhecer as aulas
                 </a>
               </div>
+              <p className="mt-6 text-sm text-cocoa-soft">
+                Quer estudar em turma?{" "}
+                <Link
+                  href={NIVELAMENTO_URL}
+                  className="font-semibold text-rose-deep underline decoration-rose/40 underline-offset-4 transition-colors hover:decoration-rose-deep"
+                >
+                  Faça o teste de nivelamento
+                </Link>
+              </p>
             </div>
 
             <figure className="relative mx-auto w-full max-w-sm lg:mt-10 lg:max-w-none">
@@ -632,95 +671,112 @@ export default function Home() {
               }
               className="mx-auto text-center [&_.kicker]:after:h-px [&_.kicker]:after:w-8 [&_.kicker]:after:bg-current"
             />
-            <div className="mt-20 grid gap-8 lg:grid-cols-[1fr_1.12fr_1fr] lg:items-center lg:gap-5">
+            <div className="mt-20 grid gap-8 md:grid-cols-2 xl:grid-cols-4 xl:items-center xl:gap-4">
               {plans.map((plan) => (
-                <article
-                  key={plan.title}
-                  className={`lift reveal relative flex flex-col rounded-[2.25rem] p-8 sm:p-10 ${
-                    plan.featured
-                      ? "z-10 border-2 border-blush bg-cocoa text-cream-soft shadow-[0_0_0_8px_rgb(240_161_184/0.18),0_40px_90px_-30px_rgb(74_48_57/0.75)] lg:py-14"
-                      : "border bg-white/80 backdrop-blur-sm hover:border-blush"
-                  }`}
-                >
-                  {plan.featured && plan.tag && (
-                    <Badge className="absolute -top-4 left-1/2 h-auto -translate-x-1/2 gap-2 bg-blush px-5 py-2 text-xs font-extrabold tracking-[0.18em] text-cocoa uppercase shadow-[0_10px_24px_-8px_rgb(240_161_184/0.9)]">
-                      <span aria-hidden="true">✦</span>
-                      {plan.tag}
-                      <span aria-hidden="true">✦</span>
-                    </Badge>
-                  )}
-                  <h3
-                    className={`leading-[1.05] tracking-tight ${plan.featured ? "text-3xl sm:text-4xl" : "text-2xl sm:text-3xl"}`}
-                  >
-                    {plan.title}
-                  </h3>
-                  <p
-                    className={`mt-3 text-sm ${plan.featured ? "text-petal" : "text-cocoa-soft"}`}
-                  >
-                    {plan.meta}
-                  </p>
-
-                  <div className="mt-8 flex flex-wrap items-baseline gap-x-2">
-                    <span
-                      className={`font-serif leading-none tracking-[-0.04em] ${
-                        plan.featured
-                          ? "text-7xl text-blush italic sm:text-8xl"
-                          : "text-6xl"
-                      }`}
-                    >
-                      {plan.price}
-                    </span>
-                    <span
-                      className={`text-sm ${plan.featured ? "text-petal" : "text-cocoa-soft"}`}
-                    >
-                      {plan.period}
-                    </span>
-                  </div>
-                  {!plan.featured && plan.tag && (
-                    <p className="mt-4 text-sm font-semibold text-rose-deep">
-                      {plan.tag}
-                    </p>
-                  )}
-
-                  <ul
-                    className={`mt-8 flex-1 space-y-3.5 border-t pt-8 text-[0.9375rem] ${
-                      plan.featured ? "border-white/15" : ""
+                <div key={plan.title} className="flex flex-col gap-4">
+                  <article
+                    className={`lift reveal relative flex flex-1 flex-col rounded-[2.25rem] p-8 sm:p-10 xl:p-7 ${
+                      plan.featured
+                        ? "z-10 border-2 border-blush bg-cocoa text-cream-soft shadow-[0_0_0_8px_rgb(240_161_184/0.18),0_40px_90px_-30px_rgb(74_48_57/0.75)] xl:py-12"
+                        : "border bg-white/80 backdrop-blur-sm hover:border-blush"
                     }`}
                   >
-                    {plan.benefits.map((benefit, index) => (
-                      <li key={index} className="flex gap-3">
-                        <Check
-                          className={`mt-1 size-4 shrink-0 ${plan.featured ? "text-blush" : "text-rose-deep"}`}
-                          strokeWidth={2.5}
-                        />
-                        <span>{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <a
-                    href={WHATSAPP_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={
-                      plan.featured
-                        ? "cta cta-glow mt-10 py-5 text-sm"
-                        : "mt-9 inline-flex items-center justify-center rounded-full border border-cocoa/25 px-7 py-4 text-[0.8125rem] font-extrabold tracking-[0.14em] uppercase transition duration-300 hover:border-blush hover:bg-[#fff0f3]"
-                    }
-                  >
-                    Agendar minha aula
-                    {plan.featured && (
-                      <ArrowUpRight className="size-4" strokeWidth={2.75} />
+                    {plan.featured && plan.tag && (
+                      <Badge className="absolute -top-4 left-1/2 h-auto -translate-x-1/2 gap-2 bg-blush px-5 py-2 text-xs font-extrabold tracking-[0.18em] text-cocoa uppercase shadow-[0_10px_24px_-8px_rgb(240_161_184/0.9)]">
+                        <span aria-hidden="true">✦</span>
+                        {plan.tag}
+                        <span aria-hidden="true">✦</span>
+                      </Badge>
                     )}
-                  </a>
-                </article>
+                    {plan.isNew && (
+                      <Badge className="absolute -top-3.5 right-7 h-auto bg-cocoa px-4 py-1.5 text-xs font-extrabold tracking-[0.18em] text-cream-soft uppercase">
+                        Novo
+                      </Badge>
+                    )}
+                    <h3
+                      className={`leading-[1.05] tracking-tight ${plan.featured ? "text-3xl sm:text-4xl xl:text-[2rem]" : "text-2xl sm:text-3xl xl:text-[1.65rem]"}`}
+                    >
+                      {plan.title}
+                    </h3>
+                    <p
+                      className={`mt-3 text-sm ${plan.featured ? "text-petal" : "text-cocoa-soft"}`}
+                    >
+                      {plan.meta}
+                    </p>
+  
+                    <div className="mt-8 flex flex-wrap items-baseline gap-x-2">
+                      <span
+                        className={`font-serif leading-none tracking-[-0.04em] ${
+                          plan.featured
+                            ? "text-7xl text-blush italic sm:text-8xl xl:text-6xl"
+                            : "text-6xl xl:text-[3.25rem]"
+                        }`}
+                      >
+                        {plan.price}
+                      </span>
+                      <span
+                        className={`text-sm ${plan.featured ? "text-petal" : "text-cocoa-soft"}`}
+                      >
+                        {plan.period}
+                      </span>
+                    </div>
+                    {!plan.featured && plan.tag && (
+                      <p className="mt-4 text-sm font-semibold text-rose-deep">
+                        {plan.tag}
+                      </p>
+                    )}
+  
+                    <ul
+                      className={`mt-8 flex-1 space-y-3.5 border-t pt-8 text-[0.9375rem] ${
+                        plan.featured ? "border-white/15" : ""
+                      }`}
+                    >
+                      {plan.benefits.map((benefit, index) => (
+                        <li key={index} className="flex gap-3">
+                          <Check
+                            className={`mt-1 size-4 shrink-0 ${plan.featured ? "text-blush" : "text-rose-deep"}`}
+                            strokeWidth={2.5}
+                          />
+                          <span>{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+  
+                    {plan.cta ? (
+                      <Link href={plan.cta.href} className="cta mt-9 px-5">
+                        {plan.cta.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={WHATSAPP_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={
+                          plan.featured
+                            ? "cta cta-glow mt-10 py-5 text-sm"
+                            : "cta-outline mt-9"
+                        }
+                      >
+                        Agendar minha aula
+                        {plan.featured && (
+                          <ArrowUpRight className="size-4" strokeWidth={2.75} />
+                        )}
+                      </a>
+                    )}
+                  </article>
+                  {plan.note && (
+                    <p className="px-4 text-center text-sm leading-relaxed text-cocoa-soft">
+                      {plan.note}
+                    </p>
+                  )}
+                </div>
               ))}
             </div>
 
             <div className="reveal mx-auto mt-14 max-w-3xl space-y-4 text-center text-sm leading-relaxed text-cocoa-soft">
               <p>
-                Em dupla ou trio, cada pessoa paga menos e estuda junto com
-                quem gosta. O plano de estudos personalizado sai por{" "}
+                Em dupla ou em turma, cada pessoa paga menos e estuda junto com
+                outras pessoas. O plano de estudos personalizado sai por{" "}
                 <strong className="text-cocoa">R$ 10 a mais no mês</strong>.
               </p>
               <p className="text-xs">

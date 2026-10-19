@@ -1,0 +1,145 @@
+{
+  "niveis": [
+    {
+      "codigo": "A1",
+      "nome": "Iniciante",
+      "descricao": "Você entende e usa frases do dia a dia, se apresenta e responde perguntas simples sobre você."
+    },
+    {
+      "codigo": "A2",
+      "nome": "Básico",
+      "descricao": "Você conversa sobre rotina, família e compras, e entende frases curtas quando a pessoa fala devagar."
+    },
+    {
+      "codigo": "B1",
+      "nome": "Intermediário",
+      "descricao": "Você se vira em viagens, conta experiências e dá opiniões simples. O próximo passo é ganhar fluidez."
+    },
+    {
+      "codigo": "B2",
+      "nome": "Intermediário avançado",
+      "descricao": "Você discute temas variados com naturalidade e entende boa parte do inglês falado em ritmo normal."
+    },
+    {
+      "codigo": "C1",
+      "nome": "Avançado",
+      "descricao": "Você se expressa com precisão, entende nuances e ironia e usa o inglês com segurança no trabalho e nos estudos."
+    }
+  ],
+  "gramatica": [
+    {
+      "nivel": "A1",
+      "questoes": [
+        { "id": "A1-1", "enunciado": "She ___ a teacher.", "alternativas": ["is", "are", "am", "be"], "correta": 0 },
+        { "id": "A1-2", "enunciado": "I ___ from Brazil.", "alternativas": ["is", "am", "are", "be"], "correta": 1 },
+        { "id": "A1-3", "enunciado": "There ___ two books on the table.", "alternativas": ["is", "be", "are", "am"], "correta": 2 },
+        { "id": "A1-4", "enunciado": "What time ___ you wake up?", "alternativas": ["does", "are", "do", "is"], "correta": 2 },
+        { "id": "A1-5", "enunciado": "He ___ coffee every morning.", "alternativas": ["drink", "drinks", "drinking", "is drink"], "correta": 1 }
+      ]
+    },
+    {
+      "nivel": "A2",
+      "questoes": [
+        { "id": "A2-1", "enunciado": "Yesterday I ___ to the beach.", "alternativas": ["go", "goes", "went", "gone"], "correta": 2 },
+        { "id": "A2-2", "enunciado": "She is ___ than her brother.", "alternativas": ["more tall", "taller", "tallest", "the taller"], "correta": 1 },
+        { "id": "A2-3", "enunciado": "We ___ dinner when the phone rang.", "alternativas": ["were having", "have", "had have", "are having"], "correta": 0 },
+        { "id": "A2-4", "enunciado": "I've lived here ___ 2019.", "alternativas": ["for", "since", "from", "during"], "correta": 1 },
+        { "id": "A2-5", "enunciado": "You ___ smoke here. It's forbidden.", "alternativas": ["mustn't", "don't have to", "needn't", "shouldn't to"], "correta": 0 }
+      ]
+    },
+    {
+      "nivel": "B1",
+      "questoes": [
+        { "id": "B1-1", "enunciado": "If it rains tomorrow, we ___ at home.", "alternativas": ["stay", "would stay", "'ll stay", "stayed"], "correta": 2 },
+        { "id": "B1-2", "enunciado": "I'm not used to ___ up so early.", "alternativas": ["get", "getting", "got", "be getting"], "correta": 1 },
+        { "id": "B1-3", "enunciado": "This book ___ by millions of people.", "alternativas": ["has read", "has been read", "have been reading", "is reading"], "correta": 1 },
+        { "id": "B1-4", "enunciado": "She asked me where ___.", "alternativas": ["did I live", "do I live", "I lived", "I do live"], "correta": 2 },
+        { "id": "B1-5", "enunciado": "I wish I ___ more free time.", "alternativas": ["have", "had", "will have", "am having"], "correta": 1 }
+      ]
+    },
+    {
+      "nivel": "B2",
+      "questoes": [
+        { "id": "B2-1", "enunciado": "If I had known, I ___ you.", "alternativas": ["would tell", "will have told", "would have told", "had told"], "correta": 2 },
+        { "id": "B2-2", "enunciado": "Hardly had we arrived ___ it started to rain.", "alternativas": ["than", "when", "then", "that"], "correta": 1 },
+        { "id": "B2-3", "enunciado": "He denied ___ the money.", "alternativas": ["to take", "take", "taking", "to have take"], "correta": 2 },
+        { "id": "B2-4", "enunciado": "It's high time we ___.", "alternativas": ["leave", "left", "are leaving", "will leave"], "correta": 1 },
+        { "id": "B2-5", "enunciado": "Our flight was delayed, ___ meant we missed the meeting.", "alternativas": ["what", "that", "which", "who"], "correta": 2 }
+      ]
+    },
+    {
+      "nivel": "C1",
+      "questoes": [
+        { "id": "C1-1", "enunciado": "No sooner ___ the door than the phone rang.", "alternativas": ["I had closed", "had I closed", "I closed", "did I closed"], "correta": 1 },
+        { "id": "C1-2", "enunciado": "The proposal was turned ___ by the board.", "alternativas": ["off", "out", "down", "over"], "correta": 2 },
+        { "id": "C1-3", "enunciado": "She's been working flat ___ to meet the deadline.", "alternativas": ["out", "off", "up", "away"], "correta": 0 },
+        { "id": "C1-4", "enunciado": "___ the circumstances, we did remarkably well.", "alternativas": ["Giving", "Given", "Despite of", "Although"], "correta": 1 },
+        { "id": "C1-5", "enunciado": "I'd rather you ___ mention it to anyone.", "alternativas": ["don't", "won't", "didn't", "not"], "correta": 2 }
+      ]
+    }
+  ],
+  "escuta": {
+    "modelo": "eleven_multilingual_v2",
+    "audios": [
+      {
+        "id": "escuta-1",
+        "nivel": "A2",
+        "arquivo": "/audio/nivelamento/escuta-1.mp3",
+        "voz": "Mulher, sotaque americano",
+        "voiceId": "",
+        "velocidade": 0.85,
+        "texto": "Hi, I'm Paula. I live in Curitiba with my sister and our dog, Max. I work at a bakery, so I start very early, at five in the morning. On Sundays, I like to go to the park.",
+        "perguntas": [
+          { "id": "escuta-1-1", "enunciado": "Where does Paula work?", "alternativas": ["At a school", "At a bakery", "At a park", "At a hospital"], "correta": 1 },
+          { "id": "escuta-1-2", "enunciado": "What does she like to do on Sundays?", "alternativas": ["Sleep late", "Visit her sister", "Go to the park", "Bake bread"], "correta": 2 }
+        ]
+      },
+      {
+        "id": "escuta-2",
+        "nivel": "B1",
+        "arquivo": "/audio/nivelamento/escuta-2.mp3",
+        "voz": "Homem, sotaque britânico",
+        "voiceId": "",
+        "velocidade": 0.92,
+        "texto": "Good afternoon, passengers. Due to heavy rain, flight four eight two to Lisbon is delayed by about forty-five minutes. Boarding will now take place at gate twelve, instead of gate eight. We apologise for the inconvenience.",
+        "perguntas": [
+          { "id": "escuta-2-1", "enunciado": "Why is the flight delayed?", "alternativas": ["A technical problem", "The weather", "A missing crew member", "Too many passengers"], "correta": 1 },
+          { "id": "escuta-2-2", "enunciado": "Where should passengers go now?", "alternativas": ["Gate 8", "Gate 4", "Gate 12", "Gate 45"], "correta": 2 }
+        ]
+      },
+      {
+        "id": "escuta-3",
+        "nivel": "B2",
+        "arquivo": "/audio/nivelamento/escuta-3.mp3",
+        "voz": "Homem, sotaque americano",
+        "voiceId": "",
+        "velocidade": 1,
+        "texto": "I used to think that working from home would make me more productive, but honestly, it was the opposite. Without the commute, I ended up working longer hours, and I really missed the small conversations with colleagues. Now I go to the office three days a week, and that balance works much better for me.",
+        "perguntas": [
+          { "id": "escuta-3-1", "enunciado": "What happened when the speaker started working from home?", "alternativas": ["They worked fewer hours", "They worked longer hours", "They became more productive", "They got a promotion"], "correta": 1 },
+          { "id": "escuta-3-2", "enunciado": "What is the speaker's situation now?", "alternativas": ["Fully remote", "Back in the office every day", "Part office, part home", "Looking for a new job"], "correta": 2 }
+        ]
+      },
+      {
+        "id": "escuta-4",
+        "nivel": "C1",
+        "arquivo": "/audio/nivelamento/escuta-4.mp3",
+        "voz": "Mulher, sotaque britânico",
+        "voiceId": "",
+        "velocidade": 1.05,
+        "texto": "What strikes me about the debate on screen time is how rarely we distinguish between different types of use. An hour spent video-calling a grandparent is hardly comparable to an hour of mindless scrolling, yet most guidelines lump them together. Until research accounts for that nuance, I'd take any blanket recommendation with a pinch of salt.",
+        "perguntas": [
+          { "id": "escuta-4-1", "enunciado": "What is the speaker's main criticism?", "alternativas": ["Screens are always harmful", "Guidelines treat all screen use as the same", "Grandparents use screens too much", "There is no research on screens"], "correta": 1 },
+          { "id": "escuta-4-2", "enunciado": "\"Take it with a pinch of salt\" means:", "alternativas": ["Accept it completely", "Be a little skeptical", "Ignore it forever", "Share it with others"], "correta": 1 }
+        ]
+      }
+    ]
+  },
+  "escrita": [
+    { "nivel": "A1", "tema": "Write about your daily routine. What do you do in the morning, afternoon and evening? (40–80 words)" },
+    { "nivel": "A2", "tema": "Describe your last vacation or a special weekend. Where did you go, who were you with and what did you do? (60–100 words)" },
+    { "nivel": "B1", "tema": "Why do you want to improve your English? Tell me about a situation where English was important for you. (80–120 words)" },
+    { "nivel": "B2", "tema": "Some people say remote work is the future. Do you agree? Give reasons and examples. (100–150 words)" },
+    { "nivel": "C1", "tema": "\"Social media does more harm than good.\" To what extent do you agree? Present a balanced argument. (120–180 words)" }
+  ]
+}

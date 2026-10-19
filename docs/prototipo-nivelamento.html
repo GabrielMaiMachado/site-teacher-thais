@@ -1,0 +1,552 @@
+<title>Nivelamento Teacher Thaís</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: coluna única centrada (~640px), uma etapa por tela, barra de tempo fixa no topo durante etapas cronometradas */
+:root{
+  --bg:#F3F4F8; --surface:#FFFFFF; --ink:#1C2033; --muted:#5D6278; --line:#DADDE8;
+  --accent:#2F5D8C; --accent-soft:#E3ECF6; --warn:#B7791F; --warn-soft:#FBF0DC;
+  --ok:#2F7A55; --ok-soft:#E1F1E8; --bad:#B23A3A; --bad-soft:#F7E2E2;
+  --f-display:"Fraunces", Georgia, "Times New Roman", serif;
+  --f-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12141C; --surface:#1B1E2A; --ink:#E8E9F1; --muted:#9EA3B8; --line:#2E3243;
+  --accent:#8DB4E2; --accent-soft:#22324A; --warn:#E3B05C; --warn-soft:#3A2F1C;
+  --ok:#6CC59A; --ok-soft:#1C3328; --bad:#E58282; --bad-soft:#3B2224; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12141C; --surface:#1B1E2A; --ink:#E8E9F1; --muted:#9EA3B8; --line:#2E3243;
+  --accent:#8DB4E2; --accent-soft:#22324A; --warn:#E3B05C; --warn-soft:#3A2F1C;
+  --ok:#6CC59A; --ok-soft:#1C3328; --bad:#E58282; --bad-soft:#3B2224; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:640px;margin:0 auto;padding-block:28px 64px;display:flex;flex-direction:column;gap:24px}
+h1,h2,h3{font-family:var(--f-display);font-weight:500;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,6vw,2.6rem);line-height:1.1}
+h2{font-size:1.6rem;line-height:1.2}
+h3{font-size:1.15rem}
+em{font-family:var(--f-display);font-style:italic;color:var(--accent)}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.stack-lg{display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.brand{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand b{font-family:var(--f-display);font-weight:600;font-size:1.05rem}
+.demo{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)}
+
+/* Etapas */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.steps div{height:4px;border-radius:2px;background:var(--line)}
+.steps div.on{background:var(--accent)}
+.overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.overview .panel{padding:16px;display:flex;flex-direction:column;gap:4px}
+.overview .t{font-family:var(--f-mono);font-size:.8rem;color:var(--accent)}
+@media (max-width:480px){.overview{grid-template-columns:1fr}}
+
+/* Formulário */
+label.f{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:.92rem}
+input[type=text],input[type=tel],input[type=email],select,textarea{
+  font:inherit;font-weight:400;color:var(--ink);background:var(--bg);border:1px solid var(--line);
+  border-radius:10px;padding:11px 12px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){.grid2{grid-template-columns:1fr}}
+
+/* Grade de horários */
+.sched-wrap{overflow-x:auto}
+table.sched{border-collapse:separate;border-spacing:4px;width:100%;min-width:340px}
+.sched th{font-size:.75rem;font-weight:600;color:var(--muted);text-align:center;padding:2px}
+.sched th.row{text-align:left}
+.sched button{width:100%;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
+.sched button[aria-pressed=true]{background:var(--accent);border-color:var(--accent)}
+
+/* Botões */
+.btn{font:inherit;font-weight:600;border:0;border-radius:999px;padding:13px 22px;cursor:pointer;
+  background:var(--accent);color:var(--surface);display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.btn:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+
+/* Barra de tempo */
+.timer{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;
+  display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--line)}
+.timer .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.clock{font-family:var(--f-mono);font-weight:700;font-size:1.25rem;font-variant-numeric:tabular-nums}
+.clock.low{color:var(--warn)}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);transition:width 1s linear}
+.bar.low i{background:var(--warn)}
+
+/* Questões */
+.q-meta{display:flex;justify-content:space-between;gap:12px;font-size:.85rem;color:var(--muted)}
+.chip{font-family:var(--f-mono);font-size:.72rem;padding:3px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-weight:700}
+.prompt{font-size:1.2rem;line-height:1.45}
+.prompt .gap{display:inline-block;min-width:70px;border-bottom:2px solid var(--accent);margin:0 2px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{font:inherit;text-align:left;padding:13px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;gap:12px;align-items:center}
+.opt:hover{border-color:var(--accent)}
+.opt[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft)}
+.opt .k{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);width:18px}
+
+/* Áudio */
+.player{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.play{width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:var(--surface);cursor:pointer;display:grid;place-items:center;flex:none}
+.play:disabled{opacity:.4;cursor:not-allowed}
+.play svg{width:22px;height:22px;fill:currentColor}
+.plays{display:flex;gap:6px}
+.plays span{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--accent)}
+.plays span.used{background:var(--accent)}
+.wave{display:flex;gap:3px;align-items:center;height:24px}
+.wave i{width:3px;background:var(--accent);border-radius:2px;height:6px}
+.wave.on i{animation:w .9s ease-in-out infinite}
+.wave i:nth-child(2n){animation-delay:.15s}.wave i:nth-child(3n){animation-delay:.3s}
+@keyframes w{50%{height:22px}}
+@media (prefers-reduced-motion:reduce){.wave.on i{animation:none;height:14px}.bar i{transition:none}}
+.note{font-size:.88rem;padding:12px 14px;border-radius:10px;background:var(--warn-soft);color:var(--ink)}
+.note.info{background:var(--accent-soft)}
+
+/* Escrita */
+textarea{min-height:220px;resize:vertical;line-height:1.6}
+.wc{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.wc b.ok{color:var(--ok)}
+
+/* Resultado */
+.cefr{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.cefr div{padding:10px 0 8px;text-align:center;border-radius:8px;background:var(--bg);border:1px solid var(--line);font-family:var(--f-mono);font-weight:700;font-size:.85rem;color:var(--muted)}
+.cefr div.on{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.big{font-family:var(--f-display);font-size:2.4rem;line-height:1.05}
+.scores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.scores .panel{padding:14px;display:flex;flex-direction:column;gap:2px}
+.scores .v{font-family:var(--f-mono);font-weight:700;font-size:1.2rem;font-variant-numeric:tabular-nums}
+@media (max-width:480px){.scores{grid-template-columns:1fr}}
+dl.ficha{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:0;font-size:.92rem}
+dl.ficha dt{color:var(--muted)}
+dl.ficha dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.msg{white-space:pre-wrap;font-size:.92rem;background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:12px;overflow-wrap:anywhere}
+.pill{display:inline-block;font-size:.75rem;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--warn-soft);color:var(--warn)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.review{display:flex;flex-direction:column;gap:6px;font-size:.88rem}
+.review div{display:flex;gap:8px;align-items:baseline}
+.review .m{font-family:var(--f-mono);font-weight:700;width:18px;flex:none}
+.review .m.y{color:var(--ok)}.review .m.n{color:var(--bad)}
+details summary{cursor:pointer;font-weight:600}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+(function(){
+const WHATS = "555591359494";
+const LEVELS = [
+  {code:"A1", name:"Iniciante", can:"Você entende e usa frases do dia a dia, se apresenta e responde perguntas simples sobre você."},
+  {code:"A2", name:"Básico", can:"Você conversa sobre rotina, família e compras, e entende frases curtas quando a pessoa fala devagar."},
+  {code:"B1", name:"Intermediário", can:"Você se vira em viagens, conta experiências e dá opiniões simples. O próximo passo é ganhar fluidez."},
+  {code:"B2", name:"Intermediário avançado", can:"Você discute temas variados com naturalidade e entende boa parte do inglês falado em ritmo normal."},
+  {code:"C1", name:"Avançado", can:"Você se expressa com precisão, entende nuances e ironia e usa o inglês com segurança no trabalho e nos estudos."}
+];
+
+/* Banco de questões — autoral, organizado por nível CEFR */
+const GRAMMAR = [
+ {lvl:0,items:[
+  ["She ___ a teacher.",["is","are","am","be"],0],
+  ["I ___ from Brazil.",["is","am","are","be"],1],
+  ["There ___ two books on the table.",["is","be","are","am"],2],
+  ["What time ___ you wake up?",["does","are","do","is"],2],
+  ["He ___ coffee every morning.",["drink","drinks","drinking","is drink"],1]]},
+ {lvl:1,items:[
+  ["Yesterday I ___ to the beach.",["go","goes","went","gone"],2],
+  ["She is ___ than her brother.",["more tall","taller","tallest","the taller"],1],
+  ["We ___ dinner when the phone rang.",["were having","have","had have","are having"],0],
+  ["I've lived here ___ 2019.",["for","since","from","during"],1],
+  ["You ___ smoke here. It's forbidden.",["mustn't","don't have to","needn't","shouldn't to"],0]]},
+ {lvl:2,items:[
+  ["If it rains tomorrow, we ___ at home.",["stay","would stay","'ll stay","stayed"],2],
+  ["I'm not used to ___ up so early.",["get","getting","got","be getting"],1],
+  ["This book ___ by millions of people.",["has read","has been read","have been reading","is reading"],1],
+  ["She asked me where ___.",["did I live","do I live","I lived","I do live"],2],
+  ["I wish I ___ more free time.",["have","had","will have","am having"],1]]},
+ {lvl:3,items:[
+  ["If I had known, I ___ you.",["would tell","will have told","would have told","had told"],2],
+  ["Hardly had we arrived ___ it started to rain.",["than","when","then","that"],1],
+  ["He denied ___ the money.",["to take","take","taking","to have take"],2],
+  ["It's high time we ___.",["leave","left","are leaving","will leave"],1],
+  ["Our flight was delayed, ___ meant we missed the meeting.",["what","that","which","who"],2]]},
+ {lvl:4,items:[
+  ["No sooner ___ the door than the phone rang.",["I had closed","had I closed","I closed","did I closed"],1],
+  ["The proposal was turned ___ by the board.",["off","out","down","over"],2],
+  ["She's been working flat ___ to meet the deadline.",["out","off","up","away"],0],
+  ["___ the circumstances, we did remarkably well.",["Giving","Given","Despite of","Although"],1],
+  ["I'd rather you ___ mention it to anyone.",["don't","won't","didn't","not"],2]]}
+];
+
+const LISTEN = [
+ {lvl:1,rate:.82,text:"Hi, I'm Paula. I live in Curitiba with my sister and our dog, Max. I work at a bakery, so I start very early, at five in the morning. On Sundays, I like to go to the park.",
+  qs:[["Where does Paula work?",["At a school","At a bakery","At a park","At a hospital"],1],
+      ["What does she like to do on Sundays?",["Sleep late","Visit her sister","Go to the park","Bake bread"],2]]},
+ {lvl:2,rate:.92,text:"Good afternoon, passengers. Due to heavy rain, flight four eight two to Lisbon is delayed by about forty-five minutes. Boarding will now take place at gate twelve, instead of gate eight. We apologise for the inconvenience.",
+  qs:[["Why is the flight delayed?",["A technical problem","The weather","A missing crew member","Too many passengers"],1],
+      ["Where should passengers go now?",["Gate 8","Gate 4","Gate 12","Gate 45"],2]]},
+ {lvl:3,rate:1,text:"I used to think that working from home would make me more productive, but honestly, it was the opposite. Without the commute, I ended up working longer hours, and I really missed the small conversations with colleagues. Now I go to the office three days a week, and that balance works much better for me.",
+  qs:[["What happened when the speaker started working from home?",["They worked fewer hours","They worked longer hours","They became more productive","They got a promotion"],1],
+      ["What is the speaker's situation now?",["Fully remote","Back in the office every day","Part office, part home","Looking for a new job"],2]]},
+ {lvl:4,rate:1.06,text:"What strikes me about the debate on screen time is how rarely we distinguish between different types of use. An hour spent video-calling a grandparent is hardly comparable to an hour of mindless scrolling, yet most guidelines lump them together. Until research accounts for that nuance, I'd take any blanket recommendation with a pinch of salt.",
+  qs:[["What is the speaker's main criticism?",["Screens are always harmful","Guidelines treat all screen use as the same","Grandparents use screens too much","There is no research on screens"],1],
+      ["\"Take it with a pinch of salt\" means:",["Accept it completely","Be a little skeptical","Ignore it forever","Share it with others"],1]]}
+];
+
+const WRITING = [
+  "Write about your daily routine. What do you do in the morning, afternoon and evening? (40–80 words)",
+  "Describe your last vacation or a special weekend. Where did you go, who were you with and what did you do? (60–100 words)",
+  "Why do you want to improve your English? Tell me about a situation where English was important for you. (80–120 words)",
+  "Some people say remote work is the future. Do you agree? Give reasons and examples. (100–150 words)",
+  "\"Social media does more harm than good.\" To what extent do you agree? Present a balanced argument. (120–180 words)"
+];
+
+const GOALS = ["Conversação no dia a dia","Trabalho / carreira","Viagens","Provas e certificados","Faculdade / estudos"];
+const DAYS = ["Seg","Ter","Qua","Qui","Sex","Sáb"];
+const SLOTS = ["Manhã","Tarde","Noite"];
+
+const app = document.getElementById("app");
+let timerId = null;
+let S = fresh();
+
+function fresh(){
+  return {screen:"intro", demo:false,
+    profile:{name:"",phone:"",email:"",goal:"",before:"",sched:[]},
+    g:{block:0,idx:0,answers:[],stoppedAt:null},
+    l:{idx:0,plays:{},answers:{}},
+    w:{text:"",paste:0},
+    tabs:0, timeLeft:0, timeTotal:0, startedAt:Date.now()};
+}
+function save(){ try{ localStorage.setItem("nivel-proto", JSON.stringify(S)); }catch(e){} }
+function load(){ try{ const r = localStorage.getItem("nivel-proto"); if(r){ const s=JSON.parse(r); if(s && s.screen) S=s; } }catch(e){} }
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = t => String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0");
+const stepBar = n => `<div class="steps" aria-hidden="true">${[1,2,3,4].map(i=>`<div class="${i<=n?"on":""}"></div>`).join("")}</div>`;
+
+/* ---------- Timer ---------- */
+const DUR = {grammar:12*60, listening:8*60, writing:10*60};
+function startTimer(section){
+  stopTimer();
+  const full = DUR[section];
+  S.timeTotal = S.demo ? Math.round(full/6) : full;
+  S.timeLeft = S.timeTotal;
+  timerId = setInterval(()=>{
+    S.timeLeft--;
+    paintTimer();
+    if(S.timeLeft<=0){ stopTimer(); onTimeout(section); }
+    else if(S.timeLeft%5===0) save();
+  },1000);
+}
+function stopTimer(){ if(timerId){clearInterval(timerId); timerId=null;} }
+function timerHTML(label){
+  return `<div class="timer" role="timer"><div class="row"><span class="eyebrow">${label}</span><span class="clock" id="clock">${fmt(S.timeLeft)}</span></div><div class="bar" id="bar"><i style="width:${100*S.timeLeft/S.timeTotal}%"></i></div></div>`;
+}
+function paintTimer(){
+  const c=document.getElementById("clock"), b=document.getElementById("bar");
+  if(!c) return;
+  const low = S.timeLeft <= Math.max(30, S.timeTotal*0.15);
+  c.textContent = fmt(Math.max(0,S.timeLeft)); c.classList.toggle("low",low);
+  b.classList.toggle("low",low); b.firstElementChild.style.width = (100*Math.max(0,S.timeLeft)/S.timeTotal)+"%";
+}
+function onTimeout(section){
+  if(section==="grammar"){ S.g.stoppedAt = S.g.stoppedAt ?? "tempo"; go("listening"); }
+  else if(section==="listening"){ go("writing"); }
+  else if(section==="writing"){ go("result"); }
+}
+
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden && ["grammar","listening","writing"].includes(S.screen)){ S.tabs++; save(); }
+});
+
+/* ---------- Navegação ---------- */
+function go(screen){
+  try{ speechSynthesis.cancel(); }catch(e){}
+  S.screen = screen;
+  if(screen==="grammar"||screen==="listening"||screen==="writing") startTimer(screen); else stopTimer();
+  save(); render(); window.scrollTo(0,0);
+}
+
+/* ---------- Pontuação ---------- */
+function grammarLevel(){
+  // nível = último bloco com pelo menos 3 de 5 acertos (blocos são sequenciais)
+  let lvl=-1;
+  for(let b=0;b<GRAMMAR.length;b++){
+    const ans = S.g.answers.filter(a=>a.b===b);
+    if(ans.length<5) break;
+    const ok = ans.filter(a=>a.ok).length;
+    if(ok>=3) lvl=b; else break;
+  }
+  return lvl;
+}
+function grammarScore(){ return {ok:S.g.answers.filter(a=>a.ok).length, total:S.g.answers.length}; }
+function listenLevel(){
+  let lvl=0; // acertou ao menos 1 das perguntas do A2 → A2; ambas de um nível → aquele nível
+  LISTEN.forEach((c,i)=>{
+    const ok = c.qs.filter((q,j)=>S.l.answers[i+"-"+j]===q[2]).length;
+    if(ok===2) lvl=Math.max(lvl,c.lvl);
+  });
+  return lvl;
+}
+function listenScore(){
+  let ok=0,total=0; LISTEN.forEach((c,i)=>c.qs.forEach((q,j)=>{total++; if(S.l.answers[i+"-"+j]===q[2]) ok++;}));
+  return {ok,total};
+}
+function estimate(){
+  const g=Math.max(0,grammarLevel()), l=listenLevel();
+  return Math.min(4, Math.max(0, Math.round(g*0.6 + l*0.4)));
+}
+const words = t => (t.trim().match(/\S+/g)||[]).length;
+
+/* ---------- Telas ---------- */
+function render(){
+  const f = {intro,profile,grammar,listening,writing,result}[S.screen];
+  app.innerHTML = f();
+  bind[S.screen] && bind[S.screen]();
+  paintTimer();
+}
+
+function header(){
+  return `<div class="brand"><b>Learn with Teacher Thaís</b><span class="eyebrow">Teste de nivelamento · protótipo</span></div>`;
+}
+
+function intro(){
+  return `${header()}
+  <div class="stack-lg">
+    <h1>Descubra seu nível e encontre <em>sua turma.</em></h1>
+    <p class="muted">As turmas têm no máximo 4 pessoas, todas no mesmo nível. Este teste leva cerca de 30 minutos e serve para te colocar com quem está no mesmo momento que você.</p>
+  </div>
+  <div class="overview">
+    <div class="panel"><span class="t">1 min</span><h3>Seu perfil</h3><p class="muted">Objetivo e horários disponíveis.</p></div>
+    <div class="panel"><span class="t">12 min</span><h3>Gramática e vocabulário</h3><p class="muted">Fica mais difícil aos poucos. Termina antes se ficar pesado.</p></div>
+    <div class="panel"><span class="t">8 min</span><h3>Escuta</h3><p class="muted">Áudios curtos. Cada um toca no máximo 2 vezes.</p></div>
+    <div class="panel"><span class="t">10 min</span><h3>Escrita</h3><p class="muted">Um texto curto. A Thaís lê e confirma seu nível.</p></div>
+  </div>
+  <div class="note info">Não use tradutor nem dicionário. Se o resultado ficar acima do seu nível real, você vai para uma turma que não te ajuda.</div>
+  <div class="actions" style="justify-content:space-between;align-items:center">
+    <label class="demo"><input type="checkbox" id="demo" ${S.demo?"checked":""}> Tempos reduzidos (para testar o protótipo)</label>
+    <button class="btn" id="start">Começar</button>
+  </div>`;
+}
+
+function profile(){
+  const p=S.profile;
+  const sched = SLOTS.map(sl=>`<tr><th class="row" scope="row">${sl}</th>${DAYS.map(d=>{
+    const k=d+"-"+sl, on=p.sched.includes(k);
+    return `<td><button type="button" data-k="${k}" aria-pressed="${on}" aria-label="${d} ${sl}"></button></td>`;}).join("")}</tr>`).join("");
+  return `${header()}${stepBar(1)}
+  <div class="stack"><span class="eyebrow">Etapa 1 de 4 · sem tempo</span><h2>Antes de tudo, <em>sobre você.</em></h2></div>
+  <form class="panel stack-lg" id="pf" novalidate>
+    <div class="grid2">
+      <label class="f">Nome<input type="text" id="name" value="${esc(p.name)}" autocomplete="name" required></label>
+      <label class="f">WhatsApp<input type="tel" id="phone" value="${esc(p.phone)}" placeholder="(55) 99999-9999" autocomplete="tel" required></label>
+    </div>
+    <label class="f">E-mail<input type="email" id="email" value="${esc(p.email)}" autocomplete="email"></label>
+    <div class="grid2">
+      <label class="f">Seu principal objetivo<select id="goal"><option value="">Escolha</option>${GOALS.map(g=>`<option ${p.goal===g?"selected":""}>${g}</option>`).join("")}</select></label>
+      <label class="f">Já estudou inglês antes?<select id="before"><option value="">Escolha</option>${["Nunca","Pouco (escola)","Curso por 1–2 anos","Curso por 3 anos ou mais"].map(g=>`<option ${p.before===g?"selected":""}>${g}</option>`).join("")}</select></label>
+    </div>
+    <div class="stack">
+      <span style="font-weight:600;font-size:.92rem">Quando você pode ter aula? <span class="muted" style="font-weight:400">Marque todos os horários possíveis.</span></span>
+      <div class="sched-wrap"><table class="sched"><thead><tr><th></th>${DAYS.map(d=>`<th scope="col">${d}</th>`).join("")}</tr></thead><tbody>${sched}</tbody></table></div>
+    </div>
+    <p class="muted" id="perr" style="font-size:.88rem" aria-live="polite"></p>
+    <div class="actions"><button class="btn" type="submit">Ir para a gramática</button></div>
+  </form>`;
+}
+
+function grammar(){
+  const block = GRAMMAR[S.g.block], it = block.items[S.g.idx];
+  const n = S.g.block*5 + S.g.idx + 1;
+  const prompt = esc(it[0]).replace("___",'<span class="gap"></span>');
+  return `${timerHTML("Gramática e vocabulário")}${stepBar(2)}
+  <div class="panel stack-lg">
+    <div class="q-meta"><span>Questão ${n} de até 25</span><span class="chip">Bloco ${LEVELS[block.lvl].code}</span></div>
+    <p class="prompt">${prompt}</p>
+    <div class="opts" role="group" aria-label="Alternativas">${it[1].map((o,i)=>`<button class="opt" data-i="${i}" aria-pressed="false"><span class="k">${"abcd"[i]}</span>${esc(o)}</button>`).join("")}</div>
+  </div>
+  <div class="actions"><button class="btn" id="next" disabled>Próxima</button></div>`;
+}
+
+function listening(){
+  const c = LISTEN[S.l.idx], used = S.l.plays[S.l.idx]||0;
+  const hasTTS = "speechSynthesis" in window;
+  return `${timerHTML("Escuta")}${stepBar(3)}
+  <div class="stack"><span class="eyebrow">Áudio ${S.l.idx+1} de ${LISTEN.length}</span><h2>Ouça e <em>responda.</em></h2></div>
+  <div class="panel stack-lg">
+    <div class="player">
+      <button class="play" id="play" ${used>=2||!hasTTS?"disabled":""} aria-label="Tocar áudio"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></button>
+      <div class="wave" id="wave" aria-hidden="true">${"<i></i>".repeat(14)}</div>
+      <div class="stack" style="gap:4px;margin-left:auto">
+        <div class="plays" aria-label="Reproduções usadas">${[0,1].map(i=>`<span class="${i<used?"used":""}"></span>`).join("")}</div>
+        <span class="muted" style="font-size:.8rem">${2-used} de 2 restantes</span>
+      </div>
+    </div>
+    ${hasTTS?`<p class="muted" style="font-size:.85rem">No protótipo a voz é sintética, do próprio navegador. Na versão final, os áudios seriam gravados pela Thaís.</p>`
+            :`<div class="note">Seu navegador não tem voz sintética. Para testar o protótipo, a transcrição aparece abaixo.</div><p class="msg">${esc(c.text)}</p>`}
+    ${c.qs.map((q,j)=>{const a=S.l.answers[S.l.idx+"-"+j];return `<div class="stack"><p style="font-weight:600">${esc(q[0])}</p>
+      <div class="opts" role="group">${q[1].map((o,i)=>`<button class="opt" data-q="${j}" data-i="${i}" aria-pressed="${a===i}"><span class="k">${"abcd"[i]}</span>${esc(o)}</button>`).join("")}</div></div>`}).join("")}
+  </div>
+  <div class="actions"><button class="btn" id="next" ${c.qs.every((q,j)=>S.l.answers[S.l.idx+"-"+j]!==undefined)?"":"disabled"}>${S.l.idx<LISTEN.length-1?"Próximo áudio":"Ir para a escrita"}</button></div>`;
+}
+
+function writing(){
+  const lvl = estimate();
+  return `${timerHTML("Escrita")}${stepBar(4)}
+  <div class="stack"><span class="eyebrow">Etapa 4 de 4 · tema ajustado ao seu nível</span><h2>Agora, <em>escreva.</em></h2></div>
+  <div class="panel stack">
+    <p class="prompt" style="font-size:1.1rem">${esc(WRITING[lvl])}</p>
+    <textarea id="txt" spellcheck="false" autocomplete="off" aria-label="Seu texto">${esc(S.w.text)}</textarea>
+    <div class="wc"><span id="pastenote">${S.w.paste?`Colar está desativado (${S.w.paste} tentativa${S.w.paste>1?"s":""})`:"Colar está desativado nesta etapa"}</span><span><b id="wc">${words(S.w.text)}</b> palavras</span></div>
+  </div>
+  <p class="muted" style="font-size:.88rem">Quando o tempo acabar, o texto é enviado do jeito que estiver.</p>
+  <div class="actions"><button class="btn" id="send">Enviar e ver resultado</button></div>`;
+}
+
+function result(){
+  const lvl=estimate(), L=LEVELS[lvl], g=grammarScore(), l=listenScore(), p=S.profile;
+  const sched = p.sched.length ? p.sched.map(k=>k.replace("-"," ")).join(", ") : "não informado";
+  const msg = `Oi, Teacher Thaís! Fiz o teste de nivelamento.\nNome: ${p.name||"—"}\nNível preliminar: ${L.code} (${L.name})\nObjetivo: ${p.goal||"—"}\nHorários: ${sched}\nQuero entrar numa turma!`;
+  const wa = `https://wa.me/${WHATS}?text=${encodeURIComponent(msg)}`;
+  const minutes = Math.max(1, Math.round((Date.now()-S.startedAt)/60000));
+  const review = S.g.answers.map(a=>{const it=GRAMMAR[a.b].items[a.i];return `<div><span class="m ${a.ok?"y":"n"}">${a.ok?"✓":"✗"}</span><span>${esc(it[0].replace("___","["+it[1][a.c]+"]"))}${a.ok?"":` <span class="muted">→ ${esc(it[1][it[2]])}</span>`}</span></div>`}).join("");
+  return `${header()}
+  <div class="stack-lg">
+    <span class="eyebrow">Seu resultado preliminar</span>
+    <div class="stack"><div class="big">${L.code} · <em>${L.name}</em></div><p>${L.can}</p></div>
+    <div class="cefr" aria-label="Escala CEFR">${LEVELS.map((x,i)=>`<div class="${i===lvl?"on":""}">${x.code}</div>`).join("")}</div>
+  </div>
+  <div class="scores">
+    <div class="panel"><span class="eyebrow">Gramática</span><span class="v">${g.ok}/${g.total}</span><span class="muted" style="font-size:.82rem">${S.g.stoppedAt==="tempo"?"encerrada pelo tempo":S.g.stoppedAt==="bloco"?"parou no bloco "+LEVELS[GRAMMAR[S.g.block].lvl].code:"todos os blocos"}</span></div>
+    <div class="panel"><span class="eyebrow">Escuta</span><span class="v">${l.ok}/${l.total}</span><span class="muted" style="font-size:.82rem">nível ${LEVELS[listenLevel()].code} na escuta</span></div>
+    <div class="panel"><span class="eyebrow">Escrita</span><span class="v">${words(S.w.text)} pal.</span><span class="muted" style="font-size:.82rem">aguardando a Thaís</span></div>
+  </div>
+  <div class="panel stack">
+    <h3>Próximo passo</h3>
+    <p class="muted">A Teacher Thaís lê sua escrita e confirma o nível em até 48h. Quando tiver 3 ou 4 pessoas do seu nível com horário em comum, a turma abre.</p>
+    <div class="msg" id="msg">${esc(msg)}</div>
+    <div class="actions"><button class="btn ghost" id="copy">Copiar mensagem</button><a class="btn" href="${wa}" target="_blank" rel="noopener">Enviar no WhatsApp</a></div>
+  </div>
+  <details class="panel stack">
+    <summary>Ficha que a Thaís receberia no painel</summary>
+    <div class="stack-lg" style="margin-top:14px">
+      <dl class="ficha">
+        <dt>Aluno</dt><dd>${esc(p.name||"—")} · ${esc(p.phone||"—")}</dd>
+        <dt>Objetivo</dt><dd>${esc(p.goal||"—")} · estudou antes: ${esc(p.before||"—")}</dd>
+        <dt>Horários</dt><dd>${esc(sched)}</dd>
+        <dt>Estimativa</dt><dd>${L.code} <span class="pill">preliminar</span></dd>
+        <dt>Duração</dt><dd>${minutes} min</dd>
+        <dt>Trocas de aba</dt><dd>${S.tabs}</dd>
+        <dt>Tentou colar</dt><dd>${S.w.paste}x na escrita</dd>
+      </dl>
+      <div class="stack"><span class="eyebrow">Tema da escrita</span><p class="muted">${esc(WRITING[lvl])}</p><div class="msg">${esc(S.w.text||"(em branco)")}</div></div>
+      <div class="stack"><span class="eyebrow">Respostas de gramática</span><div class="review">${review||"<span class='muted'>Nenhuma</span>"}</div></div>
+    </div>
+  </details>
+  <div class="actions" style="justify-content:flex-start"><button class="btn ghost" id="restart">Refazer o teste</button></div>`;
+}
+
+/* ---------- Eventos ---------- */
+const bind = {
+  intro(){
+    document.getElementById("demo").onchange=e=>{S.demo=e.target.checked;save();};
+    document.getElementById("start").onclick=()=>{S.startedAt=Date.now();go("profile");};
+  },
+  profile(){
+    const p=S.profile;
+    document.querySelectorAll(".sched button").forEach(b=>b.onclick=()=>{
+      const k=b.dataset.k, i=p.sched.indexOf(k);
+      if(i>=0)p.sched.splice(i,1); else p.sched.push(k);
+      b.setAttribute("aria-pressed", i<0); save();
+    });
+    ["name","phone","email","goal","before"].forEach(id=>{
+      const el=document.getElementById(id); el.oninput=el.onchange=()=>{p[id]=el.value;save();};
+    });
+    document.getElementById("pf").onsubmit=e=>{
+      e.preventDefault();
+      const miss=[];
+      if(!p.name.trim())miss.push("nome"); if(p.phone.replace(/\D/g,"").length<10)miss.push("WhatsApp com DDD");
+      if(!p.goal)miss.push("objetivo"); if(!p.sched.length)miss.push("pelo menos um horário");
+      if(miss.length){document.getElementById("perr").textContent="Falta preencher: "+miss.join(", ")+".";return;}
+      go("grammar");
+    };
+  },
+  grammar(){
+    let pick=null; const next=document.getElementById("next");
+    document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+      document.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed","false"));
+      b.setAttribute("aria-pressed","true"); pick=+b.dataset.i; next.disabled=false;
+    });
+    next.onclick=()=>{
+      const it=GRAMMAR[S.g.block].items[S.g.idx];
+      S.g.answers.push({b:S.g.block,i:S.g.idx,c:pick,ok:pick===it[2]});
+      if(S.g.idx<4){S.g.idx++; save(); render(); return;}
+      // fim do bloco: avança só se acertou 3 ou mais
+      const ok=S.g.answers.filter(a=>a.b===S.g.block&&a.ok).length;
+      if(ok>=3 && S.g.block<GRAMMAR.length-1){S.g.block++;S.g.idx=0;save();render();}
+      else { S.g.stoppedAt = ok>=3 ? "fim" : "bloco"; go("listening"); }
+    };
+  },
+  listening(){
+    const play=document.getElementById("play"), wave=document.getElementById("wave");
+    if(play) play.onclick=()=>{
+      const c=LISTEN[S.l.idx]; if((S.l.plays[S.l.idx]||0)>=2) return;
+      try{
+        speechSynthesis.cancel();
+        const u=new SpeechSynthesisUtterance(c.text);
+        const v=speechSynthesis.getVoices().find(v=>/en[-_](US|GB)/i.test(v.lang));
+        if(v)u.voice=v; u.lang=v?v.lang:"en-US"; u.rate=c.rate;
+        u.onend=u.onerror=()=>{wave.classList.remove("on"); render();};
+        S.l.plays[S.l.idx]=(S.l.plays[S.l.idx]||0)+1; save();
+        play.disabled=true; wave.classList.add("on");
+        speechSynthesis.speak(u);
+      }catch(e){ wave.classList.remove("on"); }
+    };
+    document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+      S.l.answers[S.l.idx+"-"+b.dataset.q]=+b.dataset.i; save();
+      b.parentElement.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x===b));
+      const c=LISTEN[S.l.idx];
+      document.getElementById("next").disabled=!c.qs.every((q,j)=>S.l.answers[S.l.idx+"-"+j]!==undefined);
+    });
+    document.getElementById("next").onclick=()=>{
+      try{speechSynthesis.cancel();}catch(e){}
+      if(S.l.idx<LISTEN.length-1){S.l.idx++;save();render();} else go("writing");
+    };
+  },
+  writing(){
+    const t=document.getElementById("txt"), wc=document.getElementById("wc");
+    t.oninput=()=>{S.w.text=t.value; wc.textContent=words(t.value); if(S.timeLeft%3===0)save();};
+    t.addEventListener("paste",e=>{e.preventDefault();S.w.paste++;save();
+      document.getElementById("pastenote").textContent=`Colar está desativado (${S.w.paste} tentativa${S.w.paste>1?"s":""})`;});
+    t.addEventListener("drop",e=>e.preventDefault());
+    document.getElementById("send").onclick=()=>{S.w.text=t.value;go("result");};
+    t.focus();
+  },
+  result(){
+    document.getElementById("copy").onclick=()=>{
+      const txt=document.getElementById("msg").textContent, btn=document.getElementById("copy");
+      const sel=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById("msg"));const s=getSelection();s.removeAllRanges();s.addRange(r);};
+      try{ navigator.clipboard.writeText(txt).then(()=>btn.textContent="Copiada",sel); }catch(e){ sel(); }
+    };
+    document.getElementById("restart").onclick=()=>{S=fresh();save();render();window.scrollTo(0,0);};
+  }
+};
+
+load();
+// Se recarregou no meio de uma etapa cronometrada, retoma com o tempo que restava
+if(["grammar","listening","writing"].includes(S.screen) && S.timeLeft>0){
+  render();
+  timerId=setInterval(()=>{S.timeLeft--;paintTimer();if(S.timeLeft<=0){stopTimer();onTimeout(S.screen);}else if(S.timeLeft%5===0)save();},1000);
+}else render();
+try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }catch(e){}
+})();
+</script>

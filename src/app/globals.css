@@ -180,6 +180,70 @@
     display: flex;
     width: max-content;
   }
+
+  /* Teste de nivelamento */
+  .cta:disabled {
+    @apply cursor-not-allowed opacity-45;
+    translate: none;
+    transform: none;
+    box-shadow: none;
+  }
+  .cta-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-cocoa/25 px-7 py-4 text-center text-[0.8125rem] leading-tight font-extrabold tracking-[0.14em] uppercase transition duration-300 hover:border-blush hover:bg-[#fff0f3];
+  }
+  .cta-outline:focus-visible,
+  .opcao:focus-visible,
+  .campo:focus-visible,
+  .horario:focus-visible,
+  .escolha:has(input:focus-visible) {
+    @apply outline-2 outline-offset-2 outline-rose-deep;
+  }
+  .opcao {
+    @apply flex w-full items-center gap-4 rounded-2xl border border-cocoa/15 bg-white px-5 py-4 text-left text-base transition-colors duration-200 hover:border-blush;
+  }
+  .opcao[aria-pressed="true"] {
+    @apply border-rose-deep bg-[#fff0f3] shadow-[inset_0_0_0_1px_var(--color-rose-deep)];
+  }
+  .campo {
+    @apply w-full rounded-2xl border border-cocoa/15 bg-white px-4 py-3 text-base text-cocoa transition-colors placeholder:text-cocoa-soft/50 hover:border-blush;
+  }
+  .campo[aria-invalid="true"] {
+    @apply border-rose-deep;
+  }
+  .escolha {
+    @apply flex cursor-pointer items-center gap-3 rounded-2xl border border-cocoa/15 bg-white px-4 py-3 text-[0.9375rem] transition-colors hover:border-blush has-checked:border-rose-deep has-checked:bg-[#fff0f3];
+  }
+  .horario {
+    @apply h-10 w-full rounded-xl border border-cocoa/15 bg-white transition-colors hover:border-blush aria-pressed:border-rose-deep aria-pressed:bg-rose-deep;
+  }
+
+  .onda i {
+    @apply block h-1.5 w-[3px] rounded-full bg-rose-deep;
+  }
+}
+
+@keyframes onda {
+  50% {
+    height: 1.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .onda[data-tocando="true"] i {
+    animation: onda 0.9s ease-in-out infinite;
+  }
+  .onda i:nth-child(2n) {
+    animation-delay: 0.15s;
+  }
+  .onda i:nth-child(3n) {
+    animation-delay: 0.3s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onda[data-tocando="true"] i {
+    height: 0.9rem;
+  }
 }
 
 @keyframes marquee {
