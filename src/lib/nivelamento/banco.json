@@ -80,6 +80,7 @@
   ],
   "escuta": {
     "modelo": "eleven_multilingual_v2",
+    "versao": 1,
     "audios": [
       {
         "id": "escuta-1",

@@ -310,6 +310,12 @@ export function salvarEstado(estado: Estado) {
   }
 }
 
+export function limparEstado() {
+  try {
+    localStorage.removeItem(CHAVE_ESTADO);
+  } catch {}
+}
+
 export function lerFila(): EnvioNivelamento[] {
   try {
     return JSON.parse(localStorage.getItem(CHAVE_FILA) ?? "[]");

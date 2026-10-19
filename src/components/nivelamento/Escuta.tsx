@@ -2,12 +2,13 @@
 
 import { ArrowRight } from "lucide-react";
 
-import { banco } from "@/lib/nivelamento/banco";
+import { banco, urlDoAudio } from "@/lib/nivelamento/banco";
 
 import { Alternativas, CabecalhoEtapa, Cartao } from "./comum";
 import { PlayerAudio } from "./PlayerAudio";
 
 export function Escuta({
+  rodada,
   indice,
   reproducoes,
   respostas,
@@ -16,6 +17,8 @@ export function Escuta({
   onResponder,
   onAvancar,
 }: {
+  /** Identifica a tentativa do teste: um teste novo sempre ganha players novos. */
+  rodada: number | null;
   indice: number;
   reproducoes: number;
   respostas: Record<string, number>;
@@ -43,8 +46,8 @@ export function Escuta({
 
       <Cartao className="flex flex-col gap-8">
         <PlayerAudio
-          key={audio.id}
-          src={audio.arquivo}
+          key={`${rodada}-${audio.id}`}
+          src={urlDoAudio(audio)}
           reproducoes={reproducoes}
           onReproduzir={onReproduzir}
         />

@@ -5,13 +5,28 @@ import { Play, RotateCcw } from "lucide-react";
 
 export const MAX_REPRODUCOES = 2;
 
+type Aviso = null | "toque" | "falhou";
+
+/** O MP3 existe e responde? Pede só 2 bytes, sem cache. */
+async function arquivoResponde(url: string) {
+  try {
+    const resposta = await fetch(url, {
+      headers: { Range: "bytes=0-1" },
+      cache: "no-store",
+    });
+    return resposta.ok;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Player sem a barra nativa: não dá para avançar nem voltar, e cada áudio
- * toca no máximo 2 vezes. A reprodução só é contada quando o som começa,
- * então uma falha de carregamento não gasta nada.
+ * toca no máximo 2 vezes. A reprodução só é contada quando o som começa, então
+ * falha de carregamento ou recusa do navegador não gasta nada.
  */
 export function PlayerAudio({
-  src,
+  src: srcBase,
   reproducoes,
   onReproduzir,
 }: {
@@ -20,33 +35,90 @@ export function PlayerAudio({
   onReproduzir: () => void;
 }) {
   const audio = useRef<HTMLAudioElement>(null);
+  const [src, setSrc] = useState(srcBase);
   const [tocando, setTocando] = useState(false);
-  const [erro, setErro] = useState(false);
+  const [pedindo, setPedindo] = useState(false);
+  const [aviso, setAviso] = useState<Aviso>(null);
+  // false durante a desmontagem: erros e promessas dessa hora são ignorados
+  const ativo = useRef(true);
+  const conferindo = useRef(false);
+  const jaRecarregou = useRef(false);
   const restantes = Math.max(0, MAX_REPRODUCOES - reproducoes);
 
   useEffect(() => {
+    ativo.current = true;
     const elemento = audio.current;
-    return () => elemento?.pause();
+    return () => {
+      ativo.current = false;
+      elemento?.pause();
+    };
   }, []);
 
-  async function tocar() {
-    const elemento = audio.current;
-    if (!elemento || tocando || restantes === 0) return;
-    setErro(false);
-    try {
-      elemento.currentTime = 0;
-      await elemento.play();
-      setTocando(true);
-      onReproduzir();
-    } catch {
-      setErro(true);
+  /** Erro de verdade do arquivo: confere no servidor antes de avisar. */
+  async function conferirArquivo() {
+    if (conferindo.current) return;
+    conferindo.current = true;
+    const existe = await arquivoResponde(srcBase);
+    conferindo.current = false;
+    if (!ativo.current) return;
+    if (existe && !jaRecarregou.current) {
+      // O servidor tem o arquivo: a cópia do navegador é que estava quebrada.
+      // Busca de novo, sem cache, e pede um novo toque (o play precisa de um clique).
+      jaRecarregou.current = true;
+      setSrc(`${srcBase}&t=${Date.now()}`);
+      setAviso("toque");
+      return;
     }
+    setAviso("falhou");
+  }
+
+  // Sem await antes do play(): o Safari do iPhone só toca se o play() sair
+  // direto do clique.
+  function tocar() {
+    const elemento = audio.current;
+    if (!elemento || tocando || pedindo || restantes === 0) return;
+    setAviso(null);
+    if (elemento.currentTime > 0) elemento.currentTime = 0;
+    let promessa: Promise<void>;
+    try {
+      promessa = Promise.resolve(elemento.play());
+    } catch (erro) {
+      promessa = Promise.reject(erro);
+    }
+    setPedindo(true);
+    promessa.then(
+      () => {
+        if (!ativo.current) return;
+        setPedindo(false);
+        setTocando(true);
+        onReproduzir();
+      },
+      (erro: unknown) => {
+        if (!ativo.current) return;
+        setPedindo(false);
+        const nome = erro instanceof DOMException ? erro.name : "";
+        if (nome === "NotAllowedError") setAviso("toque");
+        else if (nome === "AbortError") return; // interrompido: não conta, nada a avisar
+        else void conferirArquivo();
+      },
+    );
+  }
+
+  function aoErroDoArquivo() {
+    // só conta como erro de carregamento se vier do próprio arquivo (MediaError)
+    if (!ativo.current || !audio.current?.error) return;
+    setTocando(false);
+    setPedindo(false);
+    void conferirArquivo();
   }
 
   function tentarDeNovo() {
-    setErro(false);
-    audio.current?.load();
+    jaRecarregou.current = false;
+    setAviso(null);
+    setSrc(`${srcBase}&t=${Date.now()}`);
   }
+
+  const bloqueado = tocando || pedindo || restantes === 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -55,18 +127,15 @@ export function PlayerAudio({
         src={src}
         preload="auto"
         onEnded={() => setTocando(false)}
-        onError={() => {
-          setTocando(false);
-          setErro(true);
-        }}
+        onError={aoErroDoArquivo}
       />
       <div className="flex flex-wrap items-center gap-5">
         <button
           type="button"
           onClick={tocar}
-          disabled={tocando || restantes === 0}
+          disabled={bloqueado}
           aria-label={
-            tocando
+            tocando || pedindo
               ? "Tocando o áudio"
               : restantes === 0
                 ? "Reproduções esgotadas"
@@ -104,7 +173,13 @@ export function PlayerAudio({
         </div>
       </div>
 
-      {erro && (
+      {aviso === "toque" && restantes > 0 && (
+        <p role="status" className="rounded-2xl bg-cream px-4 py-3 text-sm text-cocoa">
+          Toque no botão para ouvir.
+        </p>
+      )}
+
+      {aviso === "falhou" && (
         <div
           role="alert"
           className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900"

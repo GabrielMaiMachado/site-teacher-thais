@@ -121,6 +121,11 @@ try {
     mkdirSync(pastaSaida, { recursive: true });
     for (const audio of audios) await gerar(audio);
     console.log(`\nPronto. Ouça os arquivos em public/audio/nivelamento/ e faça o commit.`);
+    if (forcar) {
+      console.log(
+        'Como você regerou com --force, aumente "escuta.versao" no banco.json para o navegador não usar o áudio antigo em cache.',
+      );
+    }
   }
 } catch (erro) {
   console.error(`\n${erro.message}`);

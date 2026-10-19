@@ -11,6 +11,7 @@ import {
   ETAPAS_CRONOMETRADAS,
   lerEstado,
   lerFila,
+  limparEstado,
   montarEnvio,
   NOME_ETAPA,
   salvarEstado,
@@ -195,6 +196,9 @@ export default function TesteNivelamento() {
     if (estado.final && estado.final.envio !== "ok") {
       salvarFila([...lerFila(), estado.final.payload]);
     }
+    // Apaga tudo do teste anterior (respostas, reproduções, índice do áudio);
+    // o estado novo tem outro `iniciadoEm`, então os players também são novos.
+    limparEstado();
     setEstado(criarEstado(estado.perfil.plano, estado.demo));
   }
 
@@ -244,6 +248,7 @@ export default function TesteNivelamento() {
         )}
         {etapa === "escuta" && (
           <Escuta
+            rodada={estado.iniciadoEm}
             indice={estado.escuta.audio}
             reproducoes={estado.escuta.reproducoes[estado.escuta.audio] ?? 0}
             respostas={estado.escuta.respostas}
