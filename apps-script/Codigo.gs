@@ -65,7 +65,8 @@ const TURNOS = ['manhã', 'tarde', 'noite'];
 const HORARIOS = DIAS.flatMap((dia) => TURNOS.map((turno) => dia + ' ' + turno));
 
 const COLUNAS = [
-  'ID', 'Data/hora', 'Status', 'Nome', 'WhatsApp', 'Abrir WhatsApp', 'E-mail',
+  'ID', 'Data/hora', 'Status', 'Nome', 'WhatsApp', 'País', 'Fuso horário',
+  'Abrir WhatsApp', 'E-mail',
   'Gênero', 'Tipo de turma', 'Plano de interesse', 'Objetivo', 'Já estudou',
   'Nível preliminar', 'Nível final', 'Nível efetivo', 'Gramática', 'Gramática %',
   'Escuta', 'Escuta %', 'Nota da escrita (1–5)', 'Turma', 'Observações',
@@ -160,6 +161,7 @@ function garantirColunas_(aba, quantidade) {
 }
 
 function configurarRespostas_(aba) {
+  migrarColunasDePais_(aba);
   garantirColunas_(aba, COLUNAS.length);
   const total = COLUNAS.length;
   const linhas = aba.getMaxRows();
@@ -219,7 +221,7 @@ function configurarRespostas_(aba) {
 
   // Larguras
   const larguras = {
-    'ID': 150, 'Data/hora': 120, 'Status': 150, 'Nome': 170, 'WhatsApp': 120,
+    'ID': 150, 'Data/hora': 120, 'Status': 150, 'Nome': 170, 'WhatsApp': 130, 'País': 120, 'Fuso horário': 150,
     'Abrir WhatsApp': 90, 'E-mail': 180, 'Gênero': 110, 'Tipo de turma': 120,
     'Plano de interesse': 130, 'Objetivo': 170, 'Já estudou': 150,
     'Nível preliminar': 80, 'Nível final': 80, 'Nível efetivo': 80,
@@ -262,6 +264,32 @@ function configurarRespostas_(aba) {
   // Filtro em todas as linhas (recria para cobrir colunas novas)
   if (aba.getFilter()) aba.getFilter().remove();
   aba.getRange(1, 1, linhas, total).createFilter();
+}
+
+/**
+ * Planilhas criadas antes do seletor de país não têm as colunas País e Fuso
+ * horário. Em vez de sobrescrever, INSERE as 2 colunas depois de WhatsApp: o
+ * próprio Sheets empurra os dados das linhas antigas para a direita e ajusta
+ * todas as fórmulas que apontam para elas (as da linha, as de Turmas em
+ * formação e as do Painel, que de qualquer forma são refeitas logo depois).
+ * Linhas antigas ficam com País = Brasil. Rodar de novo não faz nada.
+ */
+function migrarColunasDePais_(aba) {
+  if (aba.getLastColumn() < C['WhatsApp'] + 1) return; // aba nova, vazia
+  const depoisDoWhatsapp = aba.getRange(1, C['WhatsApp'] + 1).getValue();
+  if (depoisDoWhatsapp !== 'Abrir WhatsApp') return; // já migrada
+  aba.insertColumnsAfter(C['WhatsApp'], 2);
+  aba.getRange(1, C['País'], 1, 2).setValues([['País', 'Fuso horário']]);
+  const ultima = aba.getLastRow();
+  if (ultima >= 2) {
+    aba.getRange(2, C['País'], ultima - 1, 2).clearDataValidations().clearFormat();
+    aba.getRange(2, C['País'], ultima - 1, 1).setValue('Brasil');
+  }
+}
+
+/** A aba Respostas está no formato que este código espera? */
+function respostasNoFormatoAtual_(aba) {
+  return aba.getRange(1, C['País']).getValue() === 'País';
 }
 
 function configurarDetalhes_(aba) {
@@ -480,6 +508,7 @@ function configurarComoUsar_(aba) {
     ['Colunas que você preenche (cabeçalho rosa)', 'secao'],
     ['Status, Nível final, Nota da escrita (1–5), Turma e Observações. Todo o resto é preenchido sozinho — evite editar.', ''],
     ['Nível efetivo = o Nível final, se você preencheu; senão, o Nível preliminar do teste. É ele que conta para montar turmas.', ''],
+    ['País e Fuso horário mostram de onde a pessoa é e o fuso do aparelho dela (ex.: Europe/Lisbon). Os horários marcados são sempre no fuso de Brasília. O WhatsApp já vem com o código do país.', ''],
     ['Trocas de aba (âmbar a partir de 3) e Tentativas de colar (âmbar a partir de 1) são só um sinal para você conversar com a pessoa. Ninguém é reprovado por isso.', ''],
     ['', ''],
     ['Como ler a aba Turmas em formação', 'secao'],
@@ -535,7 +564,11 @@ function doPost(e) {
     if (!ss.getSheetByName(ABA.respostas) || !ss.getSheetByName(ABA.detalhes)) {
       configurarPlanilha();
     }
-    const respostas = ss.getSheetByName(ABA.respostas);
+    let respostas = ss.getSheetByName(ABA.respostas);
+    if (!respostasNoFormatoAtual_(respostas)) {
+      configurarPlanilha(); // insere País e Fuso horário sem perder nada
+      respostas = ss.getSheetByName(ABA.respostas);
+    }
     const detalhes = ss.getSheetByName(ABA.detalhes);
 
     // O site pode tentar de novo depois de uma falha de rede: não duplica.
@@ -575,7 +608,9 @@ function gravarResposta_(aba, d, agora, gidDetalhes, linhaDetalhes) {
   set('Data/hora', agora);
   set('Status', 'Novo');
   set('Nome', d.nome);
-  set('WhatsApp', String(d.whatsapp));
+  set('WhatsApp', String(d.whatsapp)); // já completo, com o código do país
+  set('País', d.pais || 'Brasil');
+  set('Fuso horário', d.fuso || '');
   set('E-mail', d.email);
   set('Gênero', d.genero);
   set('Tipo de turma', d.tipoTurma);

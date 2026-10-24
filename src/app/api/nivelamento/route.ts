@@ -79,7 +79,15 @@ function validar(corpo: Partial<EnvioNivelamento>) {
 
   const id = typeof corpo.id === "string" && /^NIV-\d{8}-[A-HJ-NP-Z2-9]{4}$/.test(corpo.id) ? corpo.id : null;
   const nome = texto(perfil.nome, 120);
-  const whatsapp = typeof perfil.whatsapp === "string" && whatsappValido(perfil.whatsapp) ? perfil.whatsapp : null;
+  // Formato internacional, só dígitos (E.164: 8 a 15). Envios antigos, de antes
+  // do seletor de país, não têm `pais` e trazem só DDD + número do Brasil.
+  const formatoAntigo = perfil.pais === undefined;
+  const digitos = typeof perfil.whatsapp === "string" ? perfil.whatsapp.replace(/\D/g, "") : "";
+  const whatsapp = formatoAntigo
+    ? whatsappValido(digitos) ? `55${digitos}` : null
+    : /^[1-9]\d{7,14}$/.test(digitos) ? digitos : null;
+  const pais = formatoAntigo ? "Brasil" : texto(perfil.pais, 60);
+  const fuso = formatoAntigo ? "" : texto(perfil.fuso ?? "", 60);
   const email = texto(perfil.email ?? "", 160);
   const genero = umDe(perfil.genero, GENEROS);
   const tipoTurma = umDe(perfil.tipoTurma, TIPOS_TURMA.map((t) => t.valor));
@@ -112,7 +120,7 @@ function validar(corpo: Partial<EnvioNivelamento>) {
       : null;
 
   const campos = {
-    id, nome, whatsapp, email, genero, tipoTurma, plano, objetivo, jaEstudou,
+    id, nome, whatsapp, pais, fuso, email, genero, tipoTurma, plano, objetivo, jaEstudou,
     horarios, nivel, gramAcertos, gramTotal, escAcertos, escTotal, tema,
     textoEscrita, palavras, colar, duracao, trocas, respostasGramatica,
     respostasEscuta, encerrado,
@@ -121,7 +129,9 @@ function validar(corpo: Partial<EnvioNivelamento>) {
     .filter(([, valor]) => valor === null)
     .map(([nome]) => nome);
   if (faltando.length) return { faltando };
-  if (!nome || corpo.consentimento !== true) return { faltando: ["nome/consentimento"] };
+  if (!nome || !pais || corpo.consentimento !== true) {
+    return { faltando: ["nome/país/consentimento"] };
+  }
   if (tipoTurma === "mesmo-genero" && genero === "Prefiro não informar") {
     return { faltando: ["genero"] };
   }
@@ -130,7 +140,10 @@ function validar(corpo: Partial<EnvioNivelamento>) {
     linha: {
       id,
       nome,
-      whatsapp: `55${whatsapp}`,
+      // já chega completo, com o código do país (ex.: 351912345678)
+      whatsapp,
+      pais,
+      fuso,
       email,
       genero,
       tipoTurma: rotuloTipoTurma(tipoTurma!),

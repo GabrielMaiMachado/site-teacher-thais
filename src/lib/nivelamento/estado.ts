@@ -3,12 +3,17 @@
 import { banco } from "./banco";
 import { HORARIOS, rotuloPlano, rotuloTipoTurma } from "./opcoes";
 import {
+  BRASIL,
+  fusoDoNavegador,
+  numeroInternacional,
+  rotuloPais,
+} from "./paises";
+import {
   contarPalavras,
   embaralharIndices,
   nivelEscuta,
   nivelEstimado,
   nivelGramatica,
-  somenteDigitos,
 } from "./pontuacao";
 
 export const CHAVE_ESTADO = "nivelamento-v1";
@@ -44,6 +49,11 @@ export const NOME_ETAPA: Record<EtapaCronometrada, string> = {
 
 export type Perfil = {
   nome: string;
+  /** Código do país do WhatsApp ("BR", "PT"… ou "outro"). */
+  pais: string;
+  /** Código de discagem digitado em "Outro país" (ex.: "41"). */
+  ddi: string;
+  /** Número local, do jeito que aparece no campo (com máscara). */
   whatsapp: string;
   email: string;
   genero: string;
@@ -69,7 +79,10 @@ export type EnvioNivelamento = {
   id: string;
   site: string;
   consentimento: boolean;
-  perfil: Omit<Perfil, "consentimento" | "site">;
+  perfil: Omit<Perfil, "consentimento" | "site" | "ddi"> & {
+    /** Fuso do navegador (ex.: Europe/Lisbon), para saber onde a pessoa vive. */
+    fuso: string;
+  };
   resultado: {
     nivelPreliminar: string;
     gramatica: { acertos: number; total: number };
@@ -129,6 +142,8 @@ export function criarEstado(plano: string, demo: boolean): Estado {
     iniciadoEm: null,
     perfil: {
       nome: "",
+      pais: BRASIL,
+      ddi: "",
       whatsapp: "",
       email: "",
       genero: "",
@@ -235,14 +250,17 @@ export function montarEnvio(
   agora: number,
 ): EnvioNivelamento {
   const resultado = calcularResultado(estado);
-  const { consentimento, site, ...perfil } = estado.perfil;
+  const { consentimento, site, ddi, ...perfil } = estado.perfil;
   return {
     id,
     site,
     consentimento,
     perfil: {
       ...perfil,
-      whatsapp: somenteDigitos(perfil.whatsapp),
+      // número completo, só dígitos, com o código do país (ex.: 351912345678)
+      whatsapp: numeroInternacional(perfil.pais, perfil.whatsapp, ddi),
+      pais: rotuloPais(perfil.pais, ddi),
+      fuso: fusoDoNavegador(),
       // mantém a ordem da grade (Seg manhã, Seg tarde…)
       horarios: HORARIOS.filter((h) => perfil.horarios.includes(h)),
     },
@@ -283,6 +301,9 @@ export function mensagemWhatsapp(envio: EnvioNivelamento) {
     "Oi, Teacher Thaís! Fiz o teste de nivelamento 😊",
     `Código: ${envio.id}`,
     `Nome: ${envio.perfil.nome}`,
+    ...(envio.perfil.pais && envio.perfil.pais !== "Brasil"
+      ? [`País: ${envio.perfil.pais}`]
+      : []),
     `Nível preliminar: ${envio.resultado.nivelPreliminar} (${nivel?.nome ?? ""})`,
     `Plano de interesse: ${rotuloPlano(envio.perfil.plano)}`,
     `Tipo de turma: ${rotuloTipoTurma(envio.perfil.tipoTurma)}`,
@@ -296,7 +317,10 @@ export function lerEstado(): Estado | null {
     const bruto = localStorage.getItem(CHAVE_ESTADO);
     if (!bruto) return null;
     const estado = JSON.parse(bruto) as Estado;
-    return estado?.versao === 1 ? estado : null;
+    if (estado?.versao !== 1) return null;
+    // testes salvos antes do seletor de país eram sempre do Brasil
+    estado.perfil = { ...estado.perfil, pais: estado.perfil.pais ?? BRASIL, ddi: estado.perfil.ddi ?? "" };
+    return estado;
   } catch {
     return null;
   }

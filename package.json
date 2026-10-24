@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test src/lib/nivelamento/pontuacao.test.ts"
+    "test": "node --test \"src/lib/nivelamento/*.test.ts\""
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

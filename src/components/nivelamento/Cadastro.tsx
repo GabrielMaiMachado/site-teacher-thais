@@ -13,7 +13,19 @@ import {
   TIPOS_TURMA,
   TURNOS,
 } from "@/lib/nivelamento/opcoes";
-import { mascararWhatsapp, whatsappValido } from "@/lib/nivelamento/pontuacao";
+import {
+  BRASIL,
+  encontrarPais,
+  excedeTamanhoLocal,
+  fusoDoNavegador,
+  interpretarTelefone,
+  mascararNumero,
+  OUTRO_PAIS,
+  PAISES,
+  textoDiferencaDeFuso,
+  validarTelefone,
+} from "@/lib/nivelamento/paises";
+import { somenteDigitos } from "@/lib/nivelamento/pontuacao";
 
 import { CabecalhoEtapa, Cartao } from "./comum";
 
@@ -29,9 +41,8 @@ type Campo =
 function validar(perfil: Perfil) {
   const erros: Partial<Record<Campo, string>> = {};
   if (!perfil.nome.trim()) erros.nome = "Escreva seu nome.";
-  if (!whatsappValido(perfil.whatsapp)) {
-    erros.whatsapp = "Informe o WhatsApp com DDD, por exemplo (55) 99999-9999.";
-  }
+  const erroWhatsapp = validarTelefone(perfil.pais, perfil.whatsapp, perfil.ddi);
+  if (erroWhatsapp) erros.whatsapp = erroWhatsapp;
   if (perfil.email && !/^\S+@\S+\.\S+$/.test(perfil.email)) {
     erros.email = "Confira o e-mail ou deixe em branco.";
   }
@@ -84,6 +95,113 @@ function Erro({ id, children }: { id: string; children?: string }) {
   );
 }
 
+/** País + número. Detecta o código do país quando a pessoa cola o número completo. */
+function CampoWhatsapp({
+  perfil,
+  erro,
+  onMudar,
+}: {
+  perfil: Perfil;
+  erro?: string;
+  onMudar: (perfil: Partial<Perfil>) => void;
+}) {
+  const { pais, ddi, whatsapp } = perfil;
+  const info = encontrarPais(pais);
+
+  function aplicarNumero(bruto: string, substituir: boolean) {
+    // "+351 912…", "00351…" ou dígitos demais para o país: tenta achar o código
+    if (bruto.includes("+") || substituir || excedeTamanhoLocal(pais, bruto, ddi)) {
+      const lido = interpretarTelefone(bruto, pais);
+      if (lido) {
+        onMudar({
+          pais: lido.pais,
+          ddi: lido.pais === OUTRO_PAIS ? lido.ddi : ddi,
+          whatsapp: mascararNumero(lido.pais, lido.numero, lido.ddi),
+        });
+        return;
+      }
+    }
+    onMudar({ whatsapp: mascararNumero(pais, bruto, ddi) });
+  }
+
+  function trocarPais(novo: string) {
+    onMudar({ pais: novo, whatsapp: mascararNumero(novo, whatsapp, ddi) });
+  }
+
+  return (
+    <div role="group" aria-labelledby="rotulo-whatsapp" className="flex flex-col gap-2">
+      <span id="rotulo-whatsapp">
+        <Rotulo>WhatsApp</Rotulo>
+      </span>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <select
+          aria-label="País do WhatsApp"
+          className="campo sm:w-60"
+          value={pais}
+          onChange={(e) => trocarPais(e.target.value)}
+        >
+          {PAISES.map((p) => (
+            <option key={p.codigo} value={p.codigo}>
+              {p.bandeira} {p.nome} (+{p.ddi})
+            </option>
+          ))}
+          <option value={OUTRO_PAIS}>🌐 Outro país</option>
+        </select>
+        <div className="flex min-w-0 flex-1 gap-2">
+          {pais === OUTRO_PAIS && (
+            <div className="relative w-24 shrink-0">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-cocoa-soft"
+              >
+                +
+              </span>
+              <input
+                aria-label="Código do país"
+                className="campo pl-7"
+                inputMode="numeric"
+                placeholder="41"
+                value={ddi}
+                onChange={(e) =>
+                  onMudar({ ddi: somenteDigitos(e.target.value).slice(0, 3) })
+                }
+                aria-invalid={!!erro && !ddi}
+              />
+            </div>
+          )}
+          <input
+            data-campo="whatsapp"
+            className="campo min-w-0 flex-1"
+            type="tel"
+            inputMode="tel"
+            placeholder={info?.exemplo ?? "Número com código de área"}
+            value={whatsapp}
+            onChange={(e) => aplicarNumero(e.target.value, false)}
+            onPaste={(e) => {
+              e.preventDefault();
+              aplicarNumero(e.clipboardData.getData("text"), true);
+            }}
+            autoComplete="tel"
+            required
+            aria-labelledby="rotulo-whatsapp"
+            aria-invalid={!!erro}
+            aria-describedby={erro ? "erro-whatsapp" : "dica-whatsapp"}
+          />
+        </div>
+      </div>
+      {erro ? (
+        <Erro id="erro-whatsapp">{erro}</Erro>
+      ) : (
+        <p id="dica-whatsapp" className="text-sm text-cocoa-soft">
+          {pais === BRASIL
+            ? "Com DDD."
+            : "Pode colar o número completo, com o código do país."}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function Cadastro({
   perfil,
   onMudar,
@@ -113,6 +231,9 @@ export function Cadastro({
     }
     onConcluir();
   }
+
+  // calculado com Intl na data de hoje, então acompanha o horário de verão
+  const diferencaDeFuso = textoDiferencaDeFuso(perfil.pais, fusoDoNavegador());
 
   function alternarHorario(horario: string) {
     onMudar({
@@ -152,41 +273,23 @@ export function Cadastro({
               <Erro id="erro-nome">{erros.nome}</Erro>
             </label>
             <label className="flex flex-col gap-2">
-              <Rotulo>WhatsApp com DDD</Rotulo>
+              <Rotulo opcional>E-mail</Rotulo>
               <input
-                data-campo="whatsapp"
+                data-campo="email"
                 className="campo"
-                type="tel"
-                inputMode="numeric"
-                placeholder="(55) 99999-9999"
-                value={perfil.whatsapp}
-                onChange={(e) =>
-                  onMudar({ whatsapp: mascararWhatsapp(e.target.value) })
-                }
-                autoComplete="tel-national"
-                required
-                aria-invalid={!!erros.whatsapp}
-                aria-describedby={erros.whatsapp ? "erro-whatsapp" : undefined}
+                type="email"
+                value={perfil.email}
+                onChange={(e) => onMudar({ email: e.target.value })}
+                autoComplete="email"
+                maxLength={160}
+                aria-invalid={!!erros.email}
+                aria-describedby={erros.email ? "erro-email" : undefined}
               />
-              <Erro id="erro-whatsapp">{erros.whatsapp}</Erro>
+              <Erro id="erro-email">{erros.email}</Erro>
             </label>
           </div>
 
-          <label className="flex flex-col gap-2">
-            <Rotulo opcional>E-mail</Rotulo>
-            <input
-              data-campo="email"
-              className="campo"
-              type="email"
-              value={perfil.email}
-              onChange={(e) => onMudar({ email: e.target.value })}
-              autoComplete="email"
-              maxLength={160}
-              aria-invalid={!!erros.email}
-              aria-describedby={erros.email ? "erro-email" : undefined}
-            />
-            <Erro id="erro-email">{erros.email}</Erro>
-          </label>
+          <CampoWhatsapp perfil={perfil} erro={erros.whatsapp} onMudar={onMudar} />
 
           {/* Campo anti-robô: invisível para pessoas */}
           <div aria-hidden="true" className="absolute -left-[9999px] size-px overflow-hidden">
@@ -307,6 +410,10 @@ export function Cadastro({
             <Rotulo>Horários disponíveis</Rotulo>
             <p className="mt-1 text-sm text-cocoa-soft">
               Marque todos os horários em que você poderia ter aula.
+            </p>
+            <p className="mt-3 rounded-2xl bg-cream px-4 py-3 text-sm text-cocoa">
+              <strong>Horários no fuso de Brasília.</strong>
+              {diferencaDeFuso && <> {diferencaDeFuso}</>}
             </p>
           </div>
           <table
